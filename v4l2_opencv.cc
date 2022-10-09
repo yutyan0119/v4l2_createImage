@@ -14,6 +14,16 @@
 #include <poll.h>
 #include <linux/videodev2.h>
 
+#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
+
+#define WIDTH 1600
+#define HEIGHT 1200
+
 struct buffer {
     void* start;
     size_t length;
@@ -59,8 +69,8 @@ void cap_device(){
 void set_device(){
     struct v4l2_format fmt = {0};
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width = 848;
-    fmt.fmt.pix.height = 480;
+    fmt.fmt.pix.width = WIDTH;
+    fmt.fmt.pix.height = HEIGHT;
     fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
     /* set format */
@@ -74,7 +84,7 @@ void set_device(){
     if (-1 == xioctl(fd, VIDIOC_G_FMT,&fmt)){
             perror("get format");
     }
-    if (fmt.fmt.pix.width != 848 || fmt.fmt.pix.height != 480 || fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_MJPEG){
+    if (fmt.fmt.pix.width != WIDTH || fmt.fmt.pix.height != HEIGHT || fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_MJPEG){
         printf("The desired format is not supported\n");
     }
 }
@@ -152,6 +162,11 @@ int make_image(){
         perror("Retrieving Frame");
         return -1;
     }
+    int size = buffers[buf.index].length;
+    cv::Mat src(1, size , CV_8UC1 ,((uint8_t *)buffers[buf.index].start));
+    cv::InputArray hoge(src);
+    cv::Mat decodedImage = cv::imdecode(hoge,cv::IMREAD_ANYCOLOR);
+    cv::imwrite("hoge.png",decodedImage);
     /*画像ファイルを開く（ない場合は作成する）*/
     int out = open("out.jpg",O_RDWR | O_CREAT, S_IRWXU|S_IRWXO|S_IRWXG);
     if (out == -1){
