@@ -74,9 +74,9 @@ void set_device(){
     if (-1 == xioctl(fd, VIDIOC_G_FMT,&fmt)){
             perror("get format");
     }
-    // if (fmt.fmt.pix.width != 800 || fmt.fmt.pix.height != 600 || fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_MJPEG){
-    //     printf("The desired format is not supported\n");
-    // }
+    if (fmt.fmt.pix.width != 800 || fmt.fmt.pix.height != 600 || fmt.fmt.pix.pixelformat != V4L2_PIX_FMT_MJPEG){
+        printf("The desired format is not supported\n");
+    }
 }
 
 void request_buffer(){
