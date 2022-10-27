@@ -166,23 +166,7 @@ int make_image(){
     cv::Mat src(1, size , CV_8UC1 ,((uint8_t *)buffers[buf.index].start));
     cv::InputArray hoge(src);
     cv::Mat decodedImage = cv::imdecode(hoge,cv::IMREAD_ANYCOLOR);
-    cv::imwrite("hoge.png",decodedImage);
-    /*画像ファイルを開く（ない場合は作成する）*/
-    int out = open("out.jpg",O_RDWR | O_CREAT, S_IRWXU|S_IRWXO|S_IRWXG);
-    if (out == -1){
-        perror("file error");
-        return -1;
-    }
-    /* 書き込む */
-    if (-1 == write(out,buffers[buf.index].start,buffers[buf.index].length)){
-        perror("cannot write");
-        return -1;
-    }
-    if (-1 == close(out)) {
-        perror("cannot close");
-        return -1;
-    }
-    /*next enqueue index return*/
+    cv::imshow("test",decodedImage);
     return buf.index;
 }
 
@@ -215,11 +199,16 @@ int main(){
     map_buffer();
     enqueue_buffers();
     stream_start();
-    int enqueue_index = make_image();
-    if (enqueue_index == -1){
-        return EXIT_FAILURE;
+    while(true){
+   	 int enqueue_index = make_image();
+   	 if (enqueue_index == -1){
+            return EXIT_FAILURE;
+    	 }
+    	enqueue_buffer(enqueue_index);
+	if (cv::waitKey(10)!=-1){
+		break;
+	}
     }
-    enqueue_buffer(enqueue_index);
     stream_stop();
     munmap_buffer();
     close_device();
