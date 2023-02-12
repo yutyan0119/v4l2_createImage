@@ -113,7 +113,7 @@ void map_buffer(){
 }
 
 void enqueue_buffer(int index){
-    struct v4l2_buffer buf;
+    struct v4l2_buffer buf = {0};
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = index;
